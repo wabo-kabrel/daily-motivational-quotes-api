@@ -1,2 +1,3 @@
-# daily-motivation-quotes-api
-A production-ready Flask REST API that serves daily motivational quotes, supports CRUD operations, SQLite persistence, Swagger documentation, and integrates seamlessly with n8n for automated delivery to Telegram, Slack, or Email.
+# Daily Motivational Quotes API
+
+A Flask REST API that provides daily motivational quotes with CRUD support, SQLite storage, Swagger docs, and integration with **n8n** for automated delivery to Telegram, Slack, or Email.
