@@ -55,7 +55,6 @@ quotes_list = [
     {"text": "Don’t be afraid to give up the good to go for the great.", "author": "John D. Rockefeller"},
     {"text": "The harder the conflict, the more glorious the triumph.", "author": "Thomas Paine"},
     {"text": "You don’t need to see the whole staircase, just take the first step.", "author": "Martin Luther King Jr."},
-    # 45 additional quotes
     {"text": "Courage doesn’t always roar. Sometimes courage is the quiet voice at the end of the day saying, ‘I will try again tomorrow.’", "author": "Mary Anne Radmacher"},
     {"text": "Do what you can with all you have, wherever you are.", "author": "Theodore Roosevelt"},
     {"text": "Don’t let what you cannot do interfere with what you can do.", "author": "John Wooden"},
