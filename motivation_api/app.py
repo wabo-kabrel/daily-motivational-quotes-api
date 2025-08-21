@@ -28,6 +28,10 @@ app = Flask(__name__)  # Initialize Flask app
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")  # Database connection string
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False               # Disable modification tracking (performance)
 app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")                 # Secret key for session/security
+database_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'quotes.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{database_path}'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 
 # ------------------------
 # Initialize Flask extensions
@@ -41,13 +45,14 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})      # Enable CORS only for /
     default_limits=[os.getenv("RATE_LIMIT")]  # e.g., "60 per minute"
 )'''
 
-# limiter configuration
 limiter = Limiter(
-    app=app,
     key_func=get_remote_address,
-    storage_url=os.getenv("REDIS_URL", "memory://"),
-    default_limits=[os.getenv("RATE_LIMIT", "60/minute")]
+    app=app,
+    #storage_uri=os.getenv('REDIS_URL', 'memory://'),
+    storage_uri="memory://",
+    default_limits=[os.getenv('RATE_LIMIT', '60/minute')]
 )
+
 
 # ------------------------
 # Import database models
@@ -195,6 +200,7 @@ def create_quote():
     db.session.commit()
 
     return standard_response(True, {"id": quote.id, "text": quote.text, "author": quote.author}), 201
+
 
 @app.route("/api/v1/quotes/<int:quote_id>", methods=["PUT"])
 @require_api_key

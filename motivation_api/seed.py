@@ -1,5 +1,5 @@
-from app import app, db
-from models import Quote
+from motivation_api.app import app, db
+from motivation_api.models import Quote
 
 quotes_list = [
     {"text": "The best way to get started is to quit talking and begin doing.", "author": "Walt Disney"},
