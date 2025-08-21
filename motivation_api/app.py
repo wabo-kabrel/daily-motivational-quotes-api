@@ -98,6 +98,24 @@ def require_api_key(f):
 # ------------------------
 # Routes
 # ------------------------
+
+# root route
+@app.route("/", methods=["GET"])
+def index():
+    """Root endpoint - API documentation"""
+    return standard_response(True, {
+        "message": "Welcome to the Daily Motivational Quotes API",
+        "endpoints": {
+            "health": "/health",
+            "random_quote": "/api/v1/quote",
+            "quote_of_the_day": "/api/v1/qotd",
+            "list_quotes": "/api/v1/quotes"
+        },
+        "documentation": "https://github.com/wabo-kabrel/daily-motivational-quotes-api"
+    })
+
+#---
+
 @app.route("/health", methods=["GET"])
 def health():
     """
