@@ -1,24 +1,22 @@
-# Use official Python 3.11 image
+# Use official Python slim image
 FROM python:3.11-slim
 
 # Set working directory
 WORKDIR /app
 
-# Copy requirements first for caching
+# Copy requirements and install
 COPY requirements.txt .
-
-# Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy project files
+# Copy the rest of the project
 COPY . .
 
-# Expose port
+# Expose port (Render will use $PORT)
 EXPOSE 5000
 
-# Environment variables for production
+# Set environment variables
+ENV FLASK_APP=motivation_api.app
 ENV FLASK_ENV=production
-ENV FLASK_APP=app.py
 
-# Run Flask with Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app", "--workers=3"]
+# Start the app with Gunicorn
+CMD ["gunicorn", "-b", "0.0.0.0:5000", "motivation_api.app:app"]

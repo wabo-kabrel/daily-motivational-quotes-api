@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: daily-motivational-quotes-api
+    env: python
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -b 0.0.0.0:$PORT motivation_api.app:app
+    envVars:
+      - key: DATABASE_URL
+        value: sqlite:///quotes.db
+      - key: SECRET_KEY
+        value: your_secret_key_here
+      - key: ADMIN_API_KEY
+        value: your_admin_api_key_here
+      - key: RATE_LIMIT
+        value: 60 per minute
