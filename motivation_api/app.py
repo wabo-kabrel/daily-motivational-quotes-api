@@ -22,7 +22,13 @@ load_dotenv()
 # ------------------------
 # Flask App Setup
 # ------------------------
+
 app = Flask(__name__)  # Initialize Flask app
+
+# Database setup
+@app.before_first_request
+def create_tables():
+    db.create_all()
 
 # Configure Flask app using environment variables
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")  # Database connection string
