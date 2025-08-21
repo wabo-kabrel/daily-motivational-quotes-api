@@ -1,11 +1,16 @@
 services:
   - type: web
-    name: daily-motivational-quotes-api
+    name: daily-quotes-api
     env: python
-    branch: main
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn -b 0.0.0.0:$PORT motivation_api.app:app
+    startCommand: |
+      flask db upgrade
+      gunicorn motivation_api.app:app
     envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.5
+      - key: FLASK_ENV
+        value: production
       - key: DATABASE_URL
         value: sqlite:///quotes.db
       - key: SECRET_KEY
@@ -13,4 +18,4 @@ services:
       - key: ADMIN_API_KEY
         value: your_admin_api_key_here
       - key: RATE_LIMIT
-        value: 60 per minute
+        value: 60/minute
