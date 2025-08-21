@@ -1,16 +1,31 @@
-version: '3.8'
+# version: '3.8'
+
+# services:
+#  web:
+#    build: .
+#    ports:
+#      - "5000:5000"
+#    volumes:
+#      - .:/app
+#    environment:
+#      FLASK_ENV: production
+#      FLASK_APP: app.py
+#      SECRET_KEY: supersecretkey123
+#      DATABASE_URL: sqlite:///quotes.db
+#      ADMIN_API_KEY: changeme123
+#      RATE_LIMIT: 60/minute
+
 
 services:
-  web:
-    build: .
-    ports:
-      - "5000:5000"
-    volumes:
-      - .:/app
-    environment:
-      FLASK_ENV: production
-      FLASK_APP: app.py
-      SECRET_KEY: supersecretkey123
-      DATABASE_URL: sqlite:///quotes.db
-      ADMIN_API_KEY: changeme123
-      RATE_LIMIT: 60/minute
+  - type: web
+    name: daily-quotes-api
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn motivation_api.app:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.5
+      - key: FLASK_ENV
+        value: production
+      - key: DATABASE_URL
+        value: sqlite:///quotes.db

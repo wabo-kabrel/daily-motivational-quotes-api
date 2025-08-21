@@ -81,3 +81,30 @@ def test_create_quote(client):
     assert rv.status_code == 201
     assert rv.get_json()["success"] == True
 
+
+
+####
+
+def test_pagination_validation(client):
+    """Test invalid pagination parameters"""
+    response = client.get("/api/v1/quotes?limit=invalid")
+    assert response.status_code == 400
+    
+def test_update_quote(client):
+    """Test quote update endpoint"""
+    # First create a quote
+    headers = {"x-api-key": "your-test-api-key"}
+    create_response = client.post("/api/v1/quotes", 
+        json={"text": "Test quote", "author": "Test Author"},
+        headers=headers
+    )
+    quote_id = create_response.json["data"]["id"]
+    
+    # Then update it
+    update_response = client.put(
+        f"/api/v1/quotes/{quote_id}",
+        json={"text": "Updated quote"},
+        headers=headers
+    )
+    assert update_response.status_code == 200
+    assert update_response.json["data"]["text"] == "Updated quote"
