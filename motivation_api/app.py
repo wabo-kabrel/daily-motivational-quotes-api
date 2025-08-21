@@ -35,10 +35,18 @@ app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")                 # Secret key 
 db = SQLAlchemy(app)                                     # Initialize SQLAlchemy ORM
 migrate = Migrate(app, db)                               # Initialize Flask-Migrate for DB migrations
 CORS(app, resources={r"/api/*": {"origins": "*"}})      # Enable CORS only for /api/* routes
-limiter = Limiter(
+'''limiter = Limiter(
     app=app,                                # explicitly assign app
     key_func=get_remote_address,
     default_limits=[os.getenv("RATE_LIMIT")]  # e.g., "60 per minute"
+)'''
+
+# limiter configuration
+limiter = Limiter(
+    app=app,
+    key_func=get_remote_address,
+    storage_url=os.getenv("REDIS_URL", "memory://"),
+    default_limits=[os.getenv("RATE_LIMIT", "60/minute")]
 )
 
 # ------------------------
