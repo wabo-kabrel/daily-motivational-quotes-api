@@ -12,7 +12,7 @@ import os                                                # OS operations (fetch 
 import hashlib                                           # For hashing (used in QOTD selection)
 from datetime import datetime                            # Work with dates/times
 import random                                            # Random selection of quotes
-from functools import wraps                                         
+from functools import wraps                              # For API key decorator
 
 # ------------------------
 # Load environment variables from .env
@@ -22,7 +22,7 @@ load_dotenv()
 # ------------------------
 # Flask App Setup
 # ------------------------
-app = Flask(__name__)                                    # Initialize Flask app
+app = Flask(__name__)  # Initialize Flask app
 
 # Configure Flask app using environment variables
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")  # Database connection string
@@ -41,11 +41,11 @@ limiter = Limiter(
     default_limits=[os.getenv("RATE_LIMIT")]  # e.g., "60 per minute"
 )
 
-
 # ------------------------
 # Import database models
 # ------------------------
-from models import Quote                                  # Import Quote model from models.py
+# Use relative import to avoid circular import issues
+from .models import Quote  # Import Quote model from models.py
 
 # ------------------------
 # Helper Functions
@@ -80,6 +80,20 @@ def get_qotd():
     index = int(hashlib.sha256(today.encode()).hexdigest(), 16) % len(quotes)  # Deterministic index
     return quotes[index]
 
+# ------------------------
+# API Key Protection for Admin Endpoints
+# ------------------------
+def require_api_key(f):
+    """
+    Decorator to protect admin routes using x-api-key header
+    """
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        api_key = request.headers.get("x-api-key")
+        if api_key != os.getenv("ADMIN_API_KEY"):
+            return standard_response(False, message="Unauthorized"), 401
+        return f(*args, **kwargs)
+    return decorated
 
 # ------------------------
 # Routes
@@ -134,43 +148,15 @@ def list_quotes():
     return standard_response(True, data)
 
 # ------------------------
-# Error Handling
-# ------------------------
-@app.errorhandler(404)
-def not_found(e):
-    """
-    Handles 404 errors (resource not found)
-    """
-    return standard_response(False, message="Resource not found"), 404
-
-@app.errorhandler(500)
-def server_error(e):
-    """
-    Handles 500 errors (internal server error)
-    """
-    return standard_response(False, message="Internal server error"), 500
-
-# ----------------------------------------
-# API Key Protection for Admin Endpoints
-# ----------------------------------------
-def require_api_key(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        api_key = request.headers.get("x-api-key")
-        if api_key != os.getenv("ADMIN_API_KEY"):
-            return standard_response(False, message="Unauthorized"), 401
-        return f(*args, **kwargs)
-    return decorated
-
-
-# ------------------------
 # Admin Routes
 # ------------------------
 
-# Create a New Quote
 @app.route("/api/v1/quotes", methods=["POST"])
 @require_api_key
 def create_quote():
+    """
+    Admin endpoint: Create a new quote
+    """
     data = request.get_json()
     text = data.get("text")
     author = data.get("author")
@@ -184,10 +170,12 @@ def create_quote():
 
     return standard_response(True, {"id": quote.id, "text": quote.text, "author": quote.author}), 201
 
-# Update a Quote
 @app.route("/api/v1/quotes/<int:quote_id>", methods=["PUT"])
 @require_api_key
 def update_quote(quote_id):
+    """
+    Admin endpoint: Update an existing quote
+    """
     data = request.get_json()
     quote = Quote.query.get(quote_id)
     if not quote:
@@ -204,10 +192,12 @@ def update_quote(quote_id):
     db.session.commit()
     return standard_response(True, {"id": quote.id, "text": quote.text, "author": quote.author})
 
-# Delete a Quote
 @app.route("/api/v1/quotes/<int:quote_id>", methods=["DELETE"])
 @require_api_key
 def delete_quote(quote_id):
+    """
+    Admin endpoint: Delete a quote
+    """
     quote = Quote.query.get(quote_id)
     if not quote:
         return standard_response(False, message="Quote not found"), 404
@@ -217,8 +207,24 @@ def delete_quote(quote_id):
     return standard_response(True, {"id": quote.id, "message": "Quote deleted"})
 
 # ------------------------
+# Error Handling
+# ------------------------
+@app.errorhandler(404)
+def not_found(e):
+    """
+    Handles 404 errors (resource not found)
+    """
+    return standard_response(False, message="Resource not found"), 404
+
+@app.errorhandler(500)
+def server_error(e):
+    """
+    Handles 500 errors (internal server error)
+    """
+    return standard_response(False, message="Internal server error"), 500
+
+# ------------------------
 # Run the Flask App
 # ------------------------
 if __name__ == "__main__":
-    # Run app in debug mode (development)
     app.run(debug=True)

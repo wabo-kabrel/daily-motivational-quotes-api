@@ -1,4 +1,4 @@
-from app import db
+from motivation_api.app import db
 
 class Quote(db.Model):
     __tablename__ = "quotes"
