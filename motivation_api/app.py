@@ -12,6 +12,7 @@ import os                                                # OS operations (fetch 
 import hashlib                                           # For hashing (used in QOTD selection)
 from datetime import datetime                            # Work with dates/times
 import random                                            # Random selection of quotes
+from functools import wraps                                         
 
 # ------------------------
 # Load environment variables from .env
@@ -148,6 +149,72 @@ def server_error(e):
     Handles 500 errors (internal server error)
     """
     return standard_response(False, message="Internal server error"), 500
+
+# ----------------------------------------
+# API Key Protection for Admin Endpoints
+# ----------------------------------------
+def require_api_key(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        api_key = request.headers.get("x-api-key")
+        if api_key != os.getenv("ADMIN_API_KEY"):
+            return standard_response(False, message="Unauthorized"), 401
+        return f(*args, **kwargs)
+    return decorated
+
+
+# ------------------------
+# Admin Routes
+# ------------------------
+
+# Create a New Quote
+@app.route("/api/v1/quotes", methods=["POST"])
+@require_api_key
+def create_quote():
+    data = request.get_json()
+    text = data.get("text")
+    author = data.get("author")
+    
+    if not text or not author:
+        return standard_response(False, message="text and author are required"), 400
+
+    quote = Quote(text=text, author=author)
+    db.session.add(quote)
+    db.session.commit()
+
+    return standard_response(True, {"id": quote.id, "text": quote.text, "author": quote.author}), 201
+
+# Update a Quote
+@app.route("/api/v1/quotes/<int:quote_id>", methods=["PUT"])
+@require_api_key
+def update_quote(quote_id):
+    data = request.get_json()
+    quote = Quote.query.get(quote_id)
+    if not quote:
+        return standard_response(False, message="Quote not found"), 404
+
+    text = data.get("text")
+    author = data.get("author")
+
+    if text:
+        quote.text = text
+    if author:
+        quote.author = author
+
+    db.session.commit()
+    return standard_response(True, {"id": quote.id, "text": quote.text, "author": quote.author})
+
+# Delete a Quote
+@app.route("/api/v1/quotes/<int:quote_id>", methods=["DELETE"])
+@require_api_key
+def delete_quote(quote_id):
+    quote = Quote.query.get(quote_id)
+    if not quote:
+        return standard_response(False, message="Quote not found"), 404
+
+    db.session.delete(quote)
+    db.session.commit()
+    return standard_response(True, {"id": quote.id, "message": "Quote deleted"})
 
 # ------------------------
 # Run the Flask App
