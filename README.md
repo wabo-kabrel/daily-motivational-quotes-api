@@ -2,6 +2,42 @@
 
 A robust Flask REST API that provides daily motivational quotes with CRUD support, SQLite storage, rate limiting, and integration capabilities for automated delivery to platforms like Telegram, Slack, or Email via n8n.
 
+## 📁 Project Structure
+
+```
+daily-motivational-quotes-api/
+├── motivation_api/                 # Main application package
+│   ├── __init__.py                # Package initialization
+│   ├── app.py                     # Flask application setup and routes
+│   ├── models.py                  # SQLAlchemy database models
+│   ├── seed.py                    # Database seeding script with sample quotes
+│   ├── quotes.db                  # SQLite database (generated)
+│   └── migrations/                # Database migrations (Alembic)
+│       ├── alembic.ini
+│       ├── env.py
+│       ├── README
+│       ├── script.py.mako
+│       └── versions/              # Migration versions
+├── tests/                         # Test suite
+│   ├── __init__.py
+│   ├── conftest.py
+│   └── test_api.py                # API endpoint tests
+│  
+├── .env                           # Environment variables (not included in repo)
+├── .dockerignore                  # Docker ignore patterns
+├── .gitignore                     # Git ignore patterns
+├── docker-compose.yml             # Docker Compose configuration
+├── Dockerfile                     # Docker build configuration
+├── gunicorn_config.py             # Gunicorn server configuration
+├── LICENSE                        # MIT License
+├── pytest.ini                     # Pytest configuration
+├── README.md                      # This documentation file
+├── render.yaml                    # Render.com deployment configuration
+├── requirements.txt               # Python dependencies
+└── instance/                      # Flask instance folder
+    └── quotes.db                  # Alternative database location
+```
+
 ## 🚀 Features
 
 - **RESTful API**: Clean, well-documented endpoints following REST conventions
