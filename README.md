@@ -85,7 +85,7 @@ daily-motivational-quotes-api/
 
 1. **Clone the repository**
    ```bash
-   git clone <[repository-url](https://github.com/wabo-kabrel/daily-motivational-quotes-api.git)>
+   git clone https://github.com/wabo-kabrel/daily-motivational-quotes-api.git  
    cd daily-motivational-quotes-api
    ```
 
